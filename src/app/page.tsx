@@ -1,11 +1,36 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import IssueCard from '@/components/IssueCard'
 import AnimateOnScroll from '@/components/AnimateOnScroll'
 import ParallaxSection from '@/components/ParallaxSection'
 import InteractiveNav from '@/components/InteractiveNav'
 
 export default function Home() {
+  const [userLocation, setUserLocation] = useState<{latitude: number, longitude: number} | null>(null)
+
+  // Auto-locate user when page loads
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          })
+          console.log('User location obtained:', position.coords.latitude, position.coords.longitude)
+        },
+        (error) => {
+          console.log('Could not get user location:', error.message)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        }
+      )
+    }
+  }, [])
   return (
     <div className="min-h-screen bg-gradient-to-br from-civic-gray-bg via-civic-cream to-civic-sand relative overflow-hidden anim-gradient-shift">
       {/* Interactive Sticky Navigation Bar */}

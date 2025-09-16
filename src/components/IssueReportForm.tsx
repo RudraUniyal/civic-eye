@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { classifyIssue, getCategoryInfo, type ClassificationResult } from '@/lib/ai-classification'
+import { extractPhotoLocation, validatePhotoLocation, getCurrentLocation, type PhotoLocationData, type LocationValidationResult } from '@/lib/photo-location-validator'
 
 interface LocationData {
   latitude: number
@@ -27,12 +27,51 @@ export default function IssueReportForm({ defaultCategory = 'pothole' }: IssueRe
   const [photo, setPhoto] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string>('')
   const [location, setLocation] = useState<LocationData | null>(null)
+  const [photoMetadata, setPhotoMetadata] = useState<PhotoLocationData | null>(null)
   const [category, setCategory] = useState(defaultCategory)
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [reportId, setReportId] = useState<string>('')
-  const [aiSuggestion, setAiSuggestion] = useState<ClassificationResult | null>(null)
-  const [classifying, setClassifying] = useState(false)
+  const [locationValidation, setLocationValidation] = useState<LocationValidationResult | null>(null)
+
+  // Simple category display helper
+  const getCategoryDisplay = (key: string) => {
+    const categories = {
+      pothole: { emoji: '🕳️', label: 'Pothole' },
+      garbage: { emoji: '🗑️', label: 'Garbage/Litter' },
+      streetlight: { emoji: '💡', label: 'Broken Street Light' },
+      graffiti: { emoji: '🎨', label: 'Graffiti' },
+      other: { emoji: '❓', label: 'Other' }
+    }
+    return categories[key as keyof typeof categories] || categories.other
+  }
+
+  // Auto-locate user when component mounts
+  useEffect(() => {
+    getLocation()
+  }, [])
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          })
+        },
+        (error) => {
+          console.error('Error getting location:', error)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        }
+      )
+    }
+  }
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -40,37 +79,28 @@ export default function IssueReportForm({ defaultCategory = 'pothole' }: IssueRe
 
     setPhoto(file)
     setPhotoPreview(URL.createObjectURL(file))
-    setClassifying(true)
 
-    // Try to extract GPS from EXIF data
-    try {
-      const exifr = await import('exifr')
-      const gps = await exifr.gps(file)
-      if (gps && gps.latitude && gps.longitude) {
-        setLocation({
-          latitude: gps.latitude,
-          longitude: gps.longitude
-        })
-        console.log('GPS coordinates extracted from EXIF:', gps)
-      }
-    } catch (error) {
-      console.log('No GPS data found in EXIF or error reading EXIF:', error)
+    // Extract GPS from photo EXIF data
+    const photoLocation = await extractPhotoLocation(file)
+    setPhotoMetadata(photoLocation)
+
+    // If we have current location, validate against photo location
+    if (location && photoLocation.hasGPS) {
+      const validation = validatePhotoLocation(photoLocation, location)
+      setLocationValidation(validation)
+    }
+    
+    // Use photo GPS as primary location if no current location and photo has GPS
+    if (!location && photoLocation.hasGPS) {
+      setLocation({
+        latitude: photoLocation.latitude,
+        longitude: photoLocation.longitude
+      })
     }
 
-    // If no GPS in EXIF, try to get current location
-    if (!location) {
-      getCurrentLocation()
-    }
-
-    // Run AI classification
-    try {
-      const classification = await classifyIssue(file, notes)
-      setAiSuggestion(classification)
-      setCategory(classification.category)
-    } catch (error) {
-      console.error('Error classifying image:', error)
-    } finally {
-      setClassifying(false)
+    // If no GPS in photo and no current location, try to get current location
+    if (!location && !photoLocation.hasGPS) {
+      getLocation()
     }
   }
 
@@ -208,58 +238,70 @@ export default function IssueReportForm({ defaultCategory = 'pothole' }: IssueRe
           )}
         </div>
 
-        {/* Location Status */}
+        {/* Location Display with Validation */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Location Status
+            Location
           </label>
-          <div className="p-3 bg-gray-50 rounded-md">
+          <div className="space-y-2">
             {location ? (
-              <div className="text-green-600">
-                ✓ Location captured: {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-                {location.accuracy && ` (±${Math.round(location.accuracy)}m)`}
+              <div className="text-sm text-green-700 bg-green-50 p-2 rounded">
+                ✓ Current Location: {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                {location.accuracy && (
+                  <span className="block text-xs text-green-600">
+                    Accuracy: ±{Math.round(location.accuracy)}m
+                  </span>
+                )}
               </div>
             ) : (
-              <div className="text-orange-600">
+              <div className="text-sm text-orange-700 bg-orange-50 p-2 rounded">
                 ⚠ Location not available
                 <button
                   type="button"
-                  onClick={getCurrentLocation}
+                  onClick={getLocation}
                   className="ml-2 text-blue-600 underline hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                   Get Location
                 </button>
               </div>
             )}
+            
+            {/* Photo Location Validation */}
+            {photoMetadata?.hasGPS && (
+              <div className="text-sm p-2 rounded border bg-blue-50 border-blue-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm font-medium">📷 Photo GPS:</span>
+                  <span>{photoMetadata.latitude?.toFixed(6)}, {photoMetadata.longitude?.toFixed(6)}</span>
+                </div>
+                {photoMetadata.timestamp && (
+                  <div className="text-xs text-gray-600">
+                    Photo taken: {photoMetadata.timestamp.toLocaleString()}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Location Validation Result */}
+            {locationValidation && (
+              <div className={`text-sm p-2 rounded border ${
+                locationValidation.isValid 
+                  ? 'bg-green-50 text-green-700 border-green-200' 
+                  : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <span>{locationValidation.isValid ? '✅' : '⚠️'}</span>
+                  <span>{locationValidation.message}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Category Selection with AI Suggestion */}
+        {/* Category Selection */}
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
             Issue Category *
           </label>
-          
-          {aiSuggestion && (
-            <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <div className="flex items-center gap-2 text-blue-700">
-                <span className="text-lg">{getCategoryInfo(aiSuggestion.category).emoji}</span>
-                <span className="font-medium">AI Suggestion:</span>
-                <span>{getCategoryInfo(aiSuggestion.category).label}</span>
-                <span className="text-sm">({Math.round(aiSuggestion.confidence * 100)}% confidence)</span>
-              </div>
-              <p className="text-sm text-blue-600 mt-1">{aiSuggestion.reasoning}</p>
-            </div>
-          )}
-          
-          {classifying && (
-            <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
-              <div className="flex items-center gap-2 text-gray-600">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span className="text-sm">Analyzing image for category suggestion...</span>
-              </div>
-            </div>
-          )}
           
           <select
             id="category"
@@ -269,7 +311,7 @@ export default function IssueReportForm({ defaultCategory = 'pothole' }: IssueRe
             required
           >
             {ISSUE_CATEGORIES.map((cat) => {
-              const info = getCategoryInfo(cat.key)
+              const info = getCategoryDisplay(cat.key)
               return (
                 <option key={cat.key} value={cat.key}>
                   {info.emoji} {info.label}
@@ -278,7 +320,7 @@ export default function IssueReportForm({ defaultCategory = 'pothole' }: IssueRe
             })}
           </select>
           <p className="mt-1 text-sm text-gray-500">
-            {aiSuggestion ? 'AI suggested category (you can change it)' : 'Select the most appropriate category'}
+            Select the most appropriate category for this issue
           </p>
         </div>
 

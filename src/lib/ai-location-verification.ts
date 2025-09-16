@@ -16,20 +16,28 @@ interface VerificationResult {
 /**
  * Extract GPS coordinates from EXIF data of an image
  */
-export async function extractGPSFromImage(imageBase64: string): Promise<LocationData | null> {
+export async function extractGPSFromImage(imageUrl: string): Promise<LocationData | null> {
   try {
-    // Convert base64 to blob
-    const response = await fetch(imageBase64)
-    const blob = await response.blob()
-    
-    // For now, use a mock implementation
-    // In production, you would use a library like 'exifr' or 'piexifjs'
-    // to extract GPS coordinates from the image EXIF data
-    
     console.log('Extracting GPS from image EXIF data...')
     
-    // Mock GPS extraction - replace with actual EXIF GPS extraction
-    return null // Return null if no GPS data found
+    // Fetch the image
+    const response = await fetch(imageUrl)
+    const blob = await response.blob()
+    
+    // Use exifr to extract GPS data
+    const exifr = await import('exifr')
+    const gps = await exifr.gps(blob)
+    
+    if (gps && gps.latitude && gps.longitude) {
+      console.log('GPS coordinates found:', gps)
+      return {
+        latitude: gps.latitude,
+        longitude: gps.longitude
+      }
+    }
+    
+    console.log('No GPS data found in image')
+    return null
   } catch (error) {
     console.error('Error extracting GPS from image:', error)
     return null
