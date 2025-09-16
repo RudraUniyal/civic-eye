@@ -108,8 +108,8 @@ export default function MapView({ category }: MapViewProps = {}) {
           try {
             if (issue.location && issue.location.latitude && issue.location.longitude) {
               const { latitude, longitude } = issue.location
-              const marker = L.marker([latitude, longitude]).addTo(map)
               
+              // Create custom icon for each category
               const categoryEmoji = {
                 pothole: '🕳️',
                 garbage: '🗑️',
@@ -117,6 +117,37 @@ export default function MapView({ category }: MapViewProps = {}) {
                 graffiti: '🎨',
                 other: '❓'
               }[issue.category] || '❓'
+              
+              const categoryColors = {
+                pothole: '#DC2626',     // Red
+                garbage: '#16A34A',     // Green  
+                streetlight: '#EAB308', // Yellow
+                graffiti: '#9333EA',    // Purple
+                other: '#6B7280'        // Gray
+              }[issue.category] || '#6B7280'
+              
+              const customIcon = L.divIcon({
+                html: `<div style="
+                  background: ${categoryColors};
+                  color: white;
+                  border-radius: 50%;
+                  width: 36px;
+                  height: 36px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 16px;
+                  border: 3px solid white;
+                  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+                  cursor: pointer;
+                ">${categoryEmoji}</div>`,
+                className: 'custom-issue-marker',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+                popupAnchor: [0, -18]
+              })
+              
+              const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map)
               
               const isBase64Photo = issue.photoUrl && issue.photoUrl.startsWith('data:')
               
