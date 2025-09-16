@@ -1,0 +1,481 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Navigation backdrop blur support */
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Input field styling - ensure password dots and text are black */
+input[type="password"] {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+input[type="text"],
+input[type="email"] {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+/* Leaflet CSS overrides */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Map container specific height */
+#map-container .leaflet-container {
+  height: 60vh;
+  min-height: 400px;
+}
+
+#map {
+  height: 60vh;
+  min-height: 400px;
+  width: 100%;
+}
+
+/* Animation Keyframes */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(180deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(12, 10, 10, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(12, 10, 10, 0.5);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-200deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Enhanced gradient backgrounds */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes morphGlow {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    box-shadow: 0 0 60px rgba(37, 99, 235, 0.3);
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    box-shadow: 0 0 80px rgba(139, 92, 246, 0.4);
+  }
+}
+
+@keyframes textReveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px) rotateX(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+  }
+}
+
+@keyframes cardFloat {
+  0%, 100% {
+    transform: translateY(0px) rotateY(0deg);
+    box-shadow: 0 10px 40px rgba(37, 99, 235, 0.1);
+  }
+  50% {
+    transform: translateY(-10px) rotateY(5deg);
+    box-shadow: 0 20px 60px rgba(37, 99, 235, 0.2);
+  }
+}
+
+@keyframes iconSpin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Enhanced Animation Utility Classes */
+.anim-in {
+  animation: fadeUp 700ms ease-out both;
+}
+
+.anim-slide-up {
+  animation: slideUp 600ms ease-out both;
+}
+
+.anim-scale-in {
+  animation: scaleIn 800ms ease-out both;
+}
+
+.anim-slide-left {
+  animation: slideInLeft 700ms ease-out both;
+}
+
+.anim-slide-right {
+  animation: slideInRight 700ms ease-out both;
+}
+
+.anim-text-reveal {
+  animation: textReveal 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.anim-card-float {
+  animation: cardFloat 6s ease-in-out infinite;
+}
+
+.anim-gradient-shift {
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+}
+
+.anim-morph-glow {
+  animation: morphGlow 10s ease-in-out infinite;
+}
+
+.anim-icon-spin {
+  animation: iconSpin 3s ease-in-out infinite;
+}
+
+.anim-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.anim-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.anim-float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+.anim-bounce-in {
+  animation: bounceIn 1s ease-out both;
+}
+
+.anim-rotate-in {
+  animation: rotateIn 1s ease-out both;
+}
+
+.anim-zoom-in {
+  animation: zoomIn 0.8s ease-out both;
+}
+
+.anim-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+.shimmer {
+  background: linear-gradient(to right, #F1F2F4 4%, #ECEDF0 25%, #F1F2F4 36%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-450 {
+  animation-delay: 450ms;
+}
+
+.delay-600 {
+  animation-delay: 600ms;
+}
+
+.delay-750 {
+  animation-delay: 750ms;
+}
+
+.delay-900 {
+  animation-delay: 900ms;
+}
+
+/* Parallax Effect */
+.parallax {
+  transform-style: preserve-3d;
+}
+
+.parallax-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.parallax-bg {
+  transform: translateZ(-1px) scale(2);
+}
+
+.parallax-mid {
+  transform: translateZ(-0.5px) scale(1.5);
+}
+
+.parallax-front {
+  transform: translateZ(0);
+}
+
+/* Enhanced Card Hover Effects */
+.card-container {
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+  position: relative;
+}
+
+.card-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(233, 225, 218, 0.2), transparent);
+  transition: left 0.5s;
+  z-index: 1;
+}
+
+.card-container:hover::before {
+  left: 100%;
+}
+
+.card-container:hover,
+.card-container:focus-within {
+  z-index: 10;
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(54, 52, 44, 0.3) 0%, rgba(101, 99, 91, 0.7) 100%);
+  transition: all 0.4s ease-out;
+}
+
+.card-container:hover .card-overlay,
+.card-container:focus-within .card-overlay {
+  opacity: 0.9;
+  background: linear-gradient(135deg, rgba(54, 52, 44, 0.4) 0%, rgba(101, 99, 91, 0.8) 100%);
+}
+
+.card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem;
+  color: #E9E1DA;
+  transform: translateY(70%);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-container:hover .card-content,
+.card-container:focus-within .card-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* WCAG 2.2 AA Focus styles */
+.focus-visible:focus {
+  outline: 2px solid #9B9C9D;
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #9B9C9D;
+  outline-offset: 2px;
+}
+
+.card-container:focus-within {
+  outline: 2px solid #9B9C9D;
+  outline-offset: 2px;
+}
