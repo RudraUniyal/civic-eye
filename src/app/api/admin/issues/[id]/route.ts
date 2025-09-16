@@ -16,6 +16,15 @@ export async function GET(
       )
     }
 
+    // Check if Firebase is properly initialized
+    if (!db) {
+      console.error('Firebase database not initialized')
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      )
+    }
+
     // Get the issue from Firebase
     const issueRef = doc(db, 'issues', issueId)
     const issueSnap = await getDoc(issueRef)

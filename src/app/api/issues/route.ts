@@ -64,6 +64,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if Firebase is properly initialized
+    if (!db) {
+      console.error('Firebase database not initialized')
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      )
+    }
+
     // Generate issue ID
     const issueId = crypto.randomUUID()
     console.log('🆔 Generated issue ID:', issueId)

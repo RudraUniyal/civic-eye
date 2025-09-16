@@ -17,6 +17,15 @@ export async function PATCH(
       )
     }
 
+    // Check if Firebase is properly initialized
+    if (!db) {
+      console.error('Firebase database not initialized')
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      )
+    }
+
     // Valid status values
     const validStatuses = ['reported', 'in-progress', 'solved']
     if (!validStatuses.includes(status)) {

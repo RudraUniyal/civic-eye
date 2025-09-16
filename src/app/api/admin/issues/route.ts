@@ -6,6 +6,15 @@ export async function GET() {
   try {
     console.log('Admin API: Fetching all issues from Firebase...')
     
+    // Check if Firebase is properly initialized
+    if (!db) {
+      console.error('Firebase database not initialized')
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      )
+    }
+    
     // Get issues from Firebase Firestore
     const issuesRef = collection(db, 'issues')
     const q = query(issuesRef, orderBy('createdAt', 'desc'))
