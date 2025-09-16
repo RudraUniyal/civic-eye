@@ -1,9 +1,39 @@
 'use client'
 
+import { useState } from 'react'
 import RouteGuard from '@/components/RouteGuard'
 import Link from 'next/link'
 
 export default function ResetDataPage() {
+  const [isResetting, setIsResetting] = useState(false)
+  const [resetResult, setResetResult] = useState<{ success: boolean; message: string; deletedCount?: number } | null>(null)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+
+  const handleResetData = async () => {
+    setIsResetting(true)
+    setResetResult(null)
+    
+    try {
+      const response = await fetch('/api/admin/reset', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      const result = await response.json()
+      setResetResult(result)
+      setShowConfirmation(false)
+    } catch (error) {
+      console.error('Error resetting data:', error)
+      setResetResult({
+        success: false,
+        message: 'Failed to reset data. Please try again.'
+      })
+    } finally {
+      setIsResetting(false)
+    }
+  }
   return (
     <RouteGuard requireAuth requireAdmin>
       <div className="min-h-screen bg-gray-50">
@@ -42,19 +72,66 @@ export default function ResetDataPage() {
             </div>
           </div>
 
-          {/* Reset Functionality Removed */}
+          {/* Reset Functionality */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🔒</div>
+            <div className="text-center py-8">
+              <div className="text-6xl mb-4">🔄</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Reset Functionality Disabled
+                Reset All Issues Data
               </h3>
-              <p className="text-gray-600 mb-4">
-                The data reset functionality has been removed for security purposes.
+              <p className="text-gray-600 mb-6">
+                This will permanently delete all reported issues from the database. This action cannot be undone.
               </p>
-              <p className="text-sm text-gray-500">
-                Contact your system administrator if you need to reset data.
-              </p>
+              
+              {!showConfirmation ? (
+                <button
+                  onClick={() => setShowConfirmation(true)}
+                  className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  disabled={isResetting}
+                >
+                  Reset All Issues
+                </button>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-red-600 font-medium">
+                    Are you absolutely sure? This will delete ALL issues permanently.
+                  </p>
+                  <div className="flex justify-center space-x-4">
+                    <button
+                      onClick={handleResetData}
+                      disabled={isResetting}
+                      className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isResetting ? 'Resetting...' : 'Yes, Delete All Issues'}
+                    </button>
+                    <button
+                      onClick={() => setShowConfirmation(false)}
+                      disabled={isResetting}
+                      className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Result Message */}
+              {resetResult && (
+                <div className={`mt-6 p-4 rounded-lg ${
+                  resetResult.success 
+                    ? 'bg-green-50 border border-green-200 text-green-800' 
+                    : 'bg-red-50 border border-red-200 text-red-800'
+                }`}>
+                  <p className="font-medium">
+                    {resetResult.success ? '✅' : '❌'} {resetResult.message}
+                  </p>
+                  {resetResult.success && resetResult.deletedCount !== undefined && (
+                    <p className="text-sm mt-1">
+                      Deleted {resetResult.deletedCount} issue{resetResult.deletedCount === 1 ? '' : 's'}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

@@ -5,10 +5,12 @@ import type { Issue } from '@/lib/firebase'
 
 interface MapViewProps {
   category?: string
+  height?: string
+  showHeader?: boolean
 }
 
 // Map component with Leaflet integration
-export default function MapView({ category }: MapViewProps = {}) {
+export default function MapView({ category, height = 'h-96', showHeader = true }: MapViewProps = {}) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const [mapLoaded, setMapLoaded] = useState(false)
@@ -54,6 +56,9 @@ export default function MapView({ category }: MapViewProps = {}) {
 
       try {
         console.log('Initializing map...')
+        console.log('Map ref current:', mapRef.current)
+        console.log('Map instance ref:', mapInstanceRef.current)
+        console.log('Mounted state:', mounted)
         
         // Dynamic import to avoid SSR issues
         const L = await import('leaflet')
@@ -261,12 +266,13 @@ export default function MapView({ category }: MapViewProps = {}) {
     }
 
     if (!loading && issues && Array.isArray(issues)) {
-      // Small delay to ensure DOM is ready
+      // Increased delay to ensure DOM is ready and animations complete
       const timer = setTimeout(() => {
         if (mounted) {
+          console.log('Attempting to initialize map after delay...')
           initializeMap()
         }
-      }, 100)
+      }, 500) // Increased from 100ms to 500ms
       
       return () => {
         mounted = false
@@ -294,19 +300,22 @@ export default function MapView({ category }: MapViewProps = {}) {
   }, [])
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div className="p-4 border-b">
-        <h3 className="text-lg font-semibold text-gray-900">Community Issues Map</h3>
-        <p className="text-sm text-gray-600">
-          {loading ? 'Loading issues...' : `Showing ${issues.length} reported issue${issues.length === 1 ? '' : 's'}`}
-        </p>
-      </div>
+    <div className={`${showHeader ? 'bg-white rounded-lg shadow-lg' : ''} overflow-hidden w-full h-full relative`}>
+      {showHeader && (
+        <div className="p-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-900">Community Issues Map</h3>
+          <p className="text-sm text-gray-600">
+            {loading ? 'Loading issues...' : `Showing ${issues.length} reported issue${issues.length === 1 ? '' : 's'}`}
+          </p>
+        </div>
+      )}
       
-      <div className="relative">
+      <div className="relative w-full h-full">
         <div
           ref={mapRef}
           id="map-container"
-          className="h-96 w-full"
+          className={`${height} w-full relative`}
+          style={{position: 'relative', zIndex: 1}}
         />
         
         {(!mapLoaded || loading) && (

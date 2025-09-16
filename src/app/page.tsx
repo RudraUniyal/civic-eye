@@ -5,6 +5,7 @@ import IssueCard from '@/components/IssueCard'
 import AnimateOnScroll from '@/components/AnimateOnScroll'
 import ParallaxSection from '@/components/ParallaxSection'
 import InteractiveNav from '@/components/InteractiveNav'
+import MapView from '@/components/MapView'
 
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{latitude: number, longitude: number} | null>(null)
@@ -136,6 +137,59 @@ export default function Home() {
               </div>
             </AnimateOnScroll>
           </div>
+        </div>
+      </section>
+
+      {/* Community Issues Map Section with Glassmorphism */}
+      <section className="py-24 bg-gradient-to-br from-civic-primary/10 via-civic-accent/5 to-civic-slate/10 relative overflow-hidden">
+        {/* Glassmorphism background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-civic-primary/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-civic-accent-purple/15 rounded-full blur-3xl animate-pulse delay-700"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-civic-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <AnimateOnScroll animation="anim-scale-in">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl sm:text-5xl font-bold text-civic-slate mb-6 bg-gradient-to-r from-civic-primary to-civic-accent-purple bg-clip-text text-transparent">
+                Community Issues Map
+              </h2>
+              <p className="text-xl text-civic-gray max-w-3xl mx-auto leading-relaxed">
+                Explore reported issues in your area and see how our community is working together to make improvements.
+              </p>
+            </div>
+          </AnimateOnScroll>
+          
+          <AnimateOnScroll animation="anim-slide-up" delay={100}>
+            <div className="relative">
+              {/* Glassmorphism container */}
+              <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-3xl p-6 shadow-2xl shadow-civic-slate/10 hover:bg-white/25 transition-all duration-500">
+                {/* Map container with proper height */}
+                <div className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-2xl overflow-hidden shadow-inner" style={{minHeight: '500px'}}>
+                  <MapView />
+                </div>
+              </div>
+              
+              {/* Floating glass elements for decoration */}
+              <div className="absolute -top-4 -left-4 w-8 h-8 backdrop-blur-lg bg-civic-primary/30 border border-white/40 rounded-full shadow-lg animate-float"></div>
+              <div className="absolute -top-2 -right-6 w-6 h-6 backdrop-blur-lg bg-civic-accent/30 border border-white/40 rounded-full shadow-lg animate-float delay-500"></div>
+              <div className="absolute -bottom-3 -left-2 w-5 h-5 backdrop-blur-lg bg-civic-accent-purple/30 border border-white/40 rounded-full shadow-lg animate-float delay-1000"></div>
+              <div className="absolute -bottom-4 -right-4 w-7 h-7 backdrop-blur-lg bg-civic-slate/20 border border-white/40 rounded-full shadow-lg animate-float delay-300"></div>
+            </div>
+          </AnimateOnScroll>
+          
+          <AnimateOnScroll animation="anim-slide-up" delay={600}>
+            <div className="text-center mt-10">
+              <a 
+                href="/map" 
+                className="inline-flex items-center gap-3 backdrop-blur-lg bg-white/20 hover:bg-white/30 border border-white/30 hover:border-white/50 text-civic-slate hover:text-civic-primary px-6 py-3 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-civic-primary/20"
+              >
+                <span>View Full Map</span>
+                <div className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300">🗺️</div>
+              </a>
+            </div>
+          </AnimateOnScroll>
         </div>
       </section>
 

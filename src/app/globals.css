@@ -41,6 +41,28 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 
+/* Enhanced glassmorphism support */
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Sticky header support */
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+
 /* Input field styling - ensure password dots and text are black */
 input[type="password"] {
   color: #111827 !important;
@@ -61,14 +83,90 @@ input[type="email"] {
 
 /* Map container specific height */
 #map-container .leaflet-container {
-  height: 60vh;
+  height: 100%;
   min-height: 400px;
+  width: 100%;
+  position: relative !important;
+}
+
+/* Map in glassmorphism container */
+.backdrop-blur-xl .leaflet-container {
+  height: 500px;
+  min-height: 400px;
+  position: relative !important;
+}
+
+/* Map on dedicated map page */
+.bg-white.rounded-2xl .leaflet-container {
+  height: 600px;
+  min-height: 500px;
+  width: 100%;
+  position: relative !important;
+}
+
+/* Full height map container */
+.h-full #map-container .leaflet-container {
+  height: 100%;
+  min-height: 600px;
+  width: 100%;
+  position: relative !important;
+}
+
+/* Ensure map container itself is properly positioned */
+#map-container {
+  position: relative;
+  overflow: hidden;
+  transform: none !important;
+  will-change: auto;
+}
+
+/* Prevent map from moving during scroll */
+.leaflet-container {
+  transform: none !important;
+  will-change: auto;
+}
+
+/* Fix for map positioning on scroll */
+.leaflet-map-pane {
+  transform: none !important;
+}
+
+.leaflet-proxy {
+  transform: none !important;
 }
 
 #map {
   height: 60vh;
   min-height: 400px;
   width: 100%;
+  position: relative;
+}
+
+/* Prevent map from moving on scroll - Enhanced */
+#map-container {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+#map-container .leaflet-container {
+  position: relative !important;
+  transform: none !important;
+}
+
+/* Disable any transform or positioning changes on scroll */
+.leaflet-container .leaflet-control-container {
+  position: relative !important;
+}
+
+/* Ensure map tiles stay in position */
+.leaflet-tile-pane {
+  position: relative !important;
+}
+
+/* Lock map position during scroll events */
+.leaflet-map-pane {
+  position: relative !important;
+  transform: translate3d(0px, 0px, 0px) !important;
 }
 
 /* Animation Keyframes */
@@ -100,6 +198,24 @@ input[type="email"] {
   }
   50% {
     transform: translateY(-20px);
+  }
+}
+
+@keyframes floatGlass {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(180deg);
+  }
+}
+
+@keyframes glassShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 
@@ -325,6 +441,14 @@ input[type="email"] {
 
 .anim-float {
   animation: float 6s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: floatGlass 8s ease-in-out infinite;
+}
+
+.animate-glass-shimmer {
+  animation: glassShimmer 3s ease-in-out infinite;
 }
 
 .anim-float-slow {
